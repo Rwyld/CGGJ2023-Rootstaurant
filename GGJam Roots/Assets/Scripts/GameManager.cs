@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using Cinemachine;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
@@ -13,15 +14,20 @@ public class GameManager : MonoBehaviour
     public GameObject dayText, fadeTransition;
     public Animator fade;
     public GameObject tutorialbt1, tutorialbt2, tutorialbt3;
-    
+    public GameObject releaseContainer, spliter;
+
+    public int currentLifes;
+    private bool EndGame;
+    public GameObject EndGameInfo, AllButtomsGame;
     
     public int day;
     public int numberRoots;
 
     private void Start()
     {
+        currentLifes = 10;
         day = 0;
-        numberRoots = 3;
+        numberRoots = 2;
         StartCoroutine(StartGame());
     }
 
@@ -33,12 +39,15 @@ public class GameManager : MonoBehaviour
 
     public void CookingTime()
     {
+        StartCoroutine(ReleaserStacker());
         receptionCam.SetActive(false);
         cookingCam.SetActive(true);
     }
 
     public void ResultTime()
     {
+        releaseContainer.SetActive(true);
+        spliter.SetActive(true);
         cookingCam.SetActive(false);
         shopCam.SetActive(true);
     }
@@ -56,6 +65,12 @@ public class GameManager : MonoBehaviour
         
         fade.SetBool("Transition", false);
         yield return new WaitForSeconds(1f);
+
+        if (EndGame == true)
+        {
+            EndGameInfo.SetActive(true);
+            AllButtomsGame.SetActive(false);
+        }
         
         numberRoots += 1;
         day += 1;
@@ -73,6 +88,7 @@ public class GameManager : MonoBehaviour
         tutorialbt1.SetActive(true);
     }
 
+    
     public void TutorialButtom()
     {
         CookingTime();
@@ -91,6 +107,50 @@ public class GameManager : MonoBehaviour
     {
         tutorialbt3.SetActive(false);
         PC.NextDayProcces();
+    }
+
+    private IEnumerator ReleaserStacker()
+    {
+        releaseContainer.SetActive(false);
+        yield return new WaitForSeconds(1f);
+        spliter.SetActive(false);
+    }
+
+    public void GameLifes(int life)
+    {
+        if (currentLifes <= 0)
+        {
+            EndGame = true;
+        }
+        else
+        {
+            currentLifes -= life;
+        }
+        
+    }
+
+    public void GameOver()
+    {
+        StartCoroutine(GameOverAnimations());
+    }
+    
+    public IEnumerator GameOverAnimations()
+    {
+        fade.SetBool("Transition", true);
+        yield return new WaitForSeconds(1.5f);
+
+        EndGameInfo.SetActive(false);
+        AllButtomsGame.SetActive(true);
+        
+        fade.SetBool("Transition", false);
+        yield return new WaitForSeconds(1f);
+
+        
+        day = 1;
+        numberRoots = 3;
+        dayText.SetActive(true);
+        DayText.text = "Day " + day;
+        PC.NextDay();
     }
     
 }

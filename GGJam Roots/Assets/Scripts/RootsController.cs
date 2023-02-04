@@ -30,28 +30,32 @@ public class RootsController : MonoBehaviour
       switch (day)
       {
          case 0:
-            PC.SetRoot(RootsBP[Random.Range(0, 2)]);
+            PC.SetRoot(RootsBP[Random.Range(0, 1)]);
             break;
          case 1:
-            PC.SetRoot(RootsBP[Random.Range(0, 2)]);
+            PC.SetRoot(RootsBP[Random.Range(0, 3)]);
             break;
          case 2:
-            PC.SetRoot(RootsBP[Random.Range(2, 5)]);
+            PC.SetRoot(RootsBP[Random.Range(2, 6)]);
             break;
          case 3:
-            PC.SetRoot(RootsBP[Random.Range(5, 8)]);
+            PC.SetRoot(RootsBP[Random.Range(5, 9)]);
             break;
          case 4:
-            PC.SetRoot(RootsBP[Random.Range(11, 14)]);
+            PC.SetRoot(RootsBP[Random.Range(8, 12)]);
             break;
          case 5:
-            PC.SetRoot(RootsBP[Random.Range(15, 17)]);
+            PC.SetRoot(RootsBP[Random.Range(11, 15)]);
             break;
          case 6:
-            PC.SetRoot(RootsBP[Random.Range(0, 17)]);
+            PC.SetRoot(RootsBP[Random.Range(0, 15)]);
             break;
          case 7:
-            PC.SetRoot(RootsBP[Random.Range(0, 20)]);
+            PC.SetRoot(RootsBP[Random.Range(7, 15)]);
+            break;
+         case >7:
+            var newmin = Random.Range(0, 8);
+            PC.SetRoot(RootsBP[Random.Range(newmin, 15)]);
             break;
       }
    }
