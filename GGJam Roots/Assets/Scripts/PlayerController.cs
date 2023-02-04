@@ -10,13 +10,13 @@ public class PlayerController : MonoBehaviour
     public int greenPoints;
     public int redPoints;
     
-    public Transform newRootPos;
+    public Transform newRootPos, stackPos;
     public GameObject acceptButtom, declineButtom, cookingButtom, shopButtom, nextDayButtom;
 
     private string type;
-    [SerializeField] private int rootQuantity;
-    private GameObject currentRoot;
-    private GameObject root;
+    public int rootQuantity;
+    [SerializeField] private GameObject currentRoot;
+    [SerializeField] private GameObject root;
     
 
     private void Start()
@@ -53,6 +53,7 @@ public class PlayerController : MonoBehaviour
         {
             case "Healthy":
                 
+                Instantiate(root, stackPos.position, Quaternion.identity);
                 greenPoints += 1;
                 rootQuantity--;
                 Destroy(currentRoot);
@@ -62,6 +63,7 @@ public class PlayerController : MonoBehaviour
             
             case "Badly":
                 
+                Instantiate(root, stackPos.position, Quaternion.identity);
                 redPoints += 1;
                 rootQuantity--;
                 Destroy(currentRoot);
@@ -104,7 +106,7 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         if (rootQuantity != 0) return;
-        
+
         Destroy(currentRoot);
         acceptButtom.SetActive(false);
         declineButtom.SetActive(false);

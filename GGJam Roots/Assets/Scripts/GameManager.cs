@@ -12,12 +12,16 @@ public class GameManager : MonoBehaviour
     public TextMeshProUGUI DayText;
     public GameObject dayText, fadeTransition;
     public Animator fade;
+    public GameObject tutorialbt1, tutorialbt2, tutorialbt3;
+    
     
     public int day;
     public int numberRoots;
 
     private void Start()
     {
+        day = 0;
+        numberRoots = 3;
         StartCoroutine(StartGame());
     }
 
@@ -62,11 +66,31 @@ public class GameManager : MonoBehaviour
 
     private IEnumerator StartGame()
     {
-        day = 1;
-        DayText.text = "Day " + day;
-        numberRoots = 3;
+        PC.rootQuantity = -1;
         yield return new WaitForSeconds(1f);
         dayText.SetActive(true);
+        DayText.text = "Day " + day;
+        tutorialbt1.SetActive(true);
+    }
+
+    public void TutorialButtom()
+    {
+        CookingTime();
+        tutorialbt1.SetActive(false);
+        tutorialbt2.SetActive(true);
+    }
+    
+    public void TutorialButtom2()
+    {
+        ResultTime();
+        tutorialbt2.SetActive(false);
+        tutorialbt3.SetActive(true);
+    }
+    
+    public void TutorialButtom3()
+    {
+        tutorialbt3.SetActive(false);
+        PC.NextDayProcces();
     }
     
 }

@@ -9,13 +9,17 @@ public class RootsController : MonoBehaviour
    public GameManager GM;
    public PlayerController PC;
    
+   
    public RootsBlueprints[] RootsBP;
 
+   public int day;
    public int maxValue;
 
 
    private void Start()
    {
+      day = GM.day;
+      
       maxValue = RootsBP.Length;
       NewRoot();
       PC.GenerateRoot();
@@ -23,8 +27,11 @@ public class RootsController : MonoBehaviour
 
    public void NewRoot()
    {
-      switch (GM.day)
+      switch (day)
       {
+         case 0:
+            PC.SetRoot(RootsBP[Random.Range(0, 2)]);
+            break;
          case 1:
             PC.SetRoot(RootsBP[Random.Range(0, 2)]);
             break;
