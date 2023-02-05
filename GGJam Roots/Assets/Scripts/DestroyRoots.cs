@@ -21,6 +21,11 @@ public class DestroyRoots : MonoBehaviour
         if (isMovable)
         {
             transform.position += Vector3.down * Time.deltaTime * speed;
+
+            if (transform.position.y < 0)
+            {
+                transform.position = new Vector2(16.5f, 4.5f);
+            }
         }
     }
 

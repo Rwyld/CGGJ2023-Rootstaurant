@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour
     public GameObject releaseContainer, spliter;
 
     public int currentLifes;
-    private bool EndGame;
+    private bool EndGame = false;
     public GameObject EndGameInfo, AllButtomsGame;
     
     public int day;
@@ -106,7 +106,7 @@ public class GameManager : MonoBehaviour
     public void TutorialButtom3()
     {
         tutorialbt3.SetActive(false);
-        PC.NextDayProcces();
+        NewDay();
     }
 
     private IEnumerator ReleaserStacker()

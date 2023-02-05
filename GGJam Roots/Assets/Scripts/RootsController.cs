@@ -25,6 +25,11 @@ public class RootsController : MonoBehaviour
       PC.GenerateRoot();
    }
 
+   private void Update()
+   {
+      day = GM.day;
+   }
+
    public void NewRoot()
    {
       switch (day)
@@ -53,7 +58,7 @@ public class RootsController : MonoBehaviour
          case 7:
             PC.SetRoot(RootsBP[Random.Range(7, 15)]);
             break;
-         case >7:
+         case 8:
             var newmin = Random.Range(0, 8);
             PC.SetRoot(RootsBP[Random.Range(newmin, 15)]);
             break;

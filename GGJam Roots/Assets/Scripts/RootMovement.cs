@@ -23,7 +23,6 @@ public class RootMovement : MonoBehaviour
         PC = GameObject.FindWithTag("Player").GetComponent<PlayerController>();
         rend = GetComponent<Renderer>();
         rb = GetComponent<Rigidbody2D>();
-        rb.gravityScale = 0f;
         isStarter = true;
     }
 
@@ -71,6 +70,7 @@ public class RootMovement : MonoBehaviour
             rend.material.color = defMaterial;
             rootSelected = false;
             rb.gravityScale = 1f;
+            col.isTrigger = false;
         }
         
     }

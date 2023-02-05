@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
+using Unity.Mathematics;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -9,22 +10,26 @@ public class PlayerController : MonoBehaviour
 {
     public GameManager GM;
     public RootsController RC;
-    public int greenPoints;
-    public int redPoints;
+    public float greenPoints;
+    public float redPoints;
     
-    public Transform newRootPos, stackPos;
-    public GameObject releaseRoots, destroyRoots;
+    public Transform newRootPos, stackPos, resultPos;
+    public GameObject backTomorrow, nextRootBase, releaseRoots, destroyRoots;
     public GameObject acceptButtom, declineButtom, confirmButtom, cookingButtom, shopButtom, nextDayButtom;
-    public Button confirmBt;
+    public Button acceptBt, declineBt, confirmBt;
+    public Animator anin_accept, anin_decline, anin_confirm, anin_cooking, anin_shop, anin_next;
+    public GameObject GreenLights, RedLights;
 
     private string type;
     public int rootQuantity, rootSelecteds, minSelecteds, rootsEliminated;
     [SerializeField] private GameObject currentRoot;
     [SerializeField] private GameObject root;
+    private GameObject advice;
 
     public GameObject[] results;
     public TextMeshProUGUI resultText;
-    private float porcent;
+    public Animator anin_resultText;
+    [SerializeField] private float porcent;
 
     private void Start()
     {
@@ -36,28 +41,8 @@ public class PlayerController : MonoBehaviour
     private void Update()
     {
         if (rootQuantity != 0) return;
-
-        Destroy(currentRoot);
-        acceptButtom.SetActive(false);
-        declineButtom.SetActive(false);
-        cookingButtom.SetActive(true);
-    }
-    
-
-    public void GenerateRoot()
-    {
-        currentRoot = Instantiate(root, newRootPos.position, Quaternion.identity);
-    }
-
-    public void NextDay()
-    {
-        greenPoints = 0;
-        redPoints = 0;
-        acceptButtom.SetActive(true);
-        declineButtom.SetActive(true);
-        rootQuantity = GM.numberRoots;
-        RC.NewRoot();
-        GenerateRoot();
+        
+        NextStepCooking();
     }
 
     public void SetRoot(RootsBlueprints rb)
@@ -65,10 +50,77 @@ public class PlayerController : MonoBehaviour
         root = rb.rootPrefab;
         type = rb.rootType;
     }
+    public IEnumerator GenerateRoot()
+    {
+        acceptBt.interactable = false;
+        declineBt.interactable = false;
+        yield return new WaitForSeconds(2f);
+        
+        nextRootBase.SetActive(true);
+        currentRoot = Instantiate(root, newRootPos.position, Quaternion.identity);
+        currentRoot.transform.localScale *= new Vector2(2, 2);
+        yield return new WaitForSeconds(2f);
+        
+        acceptBt.interactable = true;
+        declineBt.interactable = true;
+    }
+    
+    
+    private void NextStepCooking()
+    {
+        Destroy(currentRoot, 2.5f);
+        nextRootBase.SetActive(false);
+        StartCoroutine(AnimationsButtoms(anin_decline));
+        StartCoroutine(AnimationsButtoms(anin_accept));
 
+        root = backTomorrow;
+        StartCoroutine(GenerateRoot());
+        cookingButtom.SetActive(true);
+        rootQuantity -= 1;
+    }
+    
+    public void NextDay()
+    {
+        greenPoints = 0;
+        redPoints = 0;
+        minSelecteds = 0;
+        rootSelecteds = 0;
+        rootsEliminated = 0;
+        acceptButtom.SetActive(true);
+        declineButtom.SetActive(true);
+        rootQuantity = GM.numberRoots;
+        RC.NewRoot();
+        StartCoroutine(GenerateRoot());
+    }
+    
 
+    private IEnumerator AnimationsButtoms(Animator bt)
+    {
+        bt.SetBool("Start", true);
+        yield return new WaitForSeconds(1.5f);
+    }
+
+    private IEnumerator GreenLightsButtons()
+    {
+        GreenLights.SetActive(true);
+        yield return new WaitForSeconds(0.5f);
+        GreenLights.SetActive(false);
+
+    }
+    
+    private IEnumerator RedLightsButtons()
+    {
+        RedLights.SetActive(true);
+        yield return new WaitForSeconds(0.5f);
+        RedLights.SetActive(false);
+
+    }
+    
     public void AcceptRoot()
     {
+        StartCoroutine(GreenLightsButtons());
+        nextRootBase.SetActive(false);
+        
         switch (type)
         {
             case "Healthy":
@@ -77,9 +129,10 @@ public class PlayerController : MonoBehaviour
                 greenPoints += 1;
                 rootQuantity--;
                 rootSelecteds++;
-                Destroy(currentRoot);
+                Destroy(currentRoot, 2f);
+                if (rootQuantity == 0) break;
                 RC.NewRoot();
-                GenerateRoot();
+                StartCoroutine(GenerateRoot());
                 break;
             
             case "Badly":
@@ -88,38 +141,47 @@ public class PlayerController : MonoBehaviour
                 redPoints += 1;
                 rootQuantity--;
                 rootSelecteds++;
-                Destroy(currentRoot);
+                Destroy(currentRoot, 2f);
+                if (rootQuantity == 0) break;
                 RC.NewRoot();
-                GenerateRoot();
+                StartCoroutine(GenerateRoot());
                 break;
         }
     }
 
     public void DeclineRoot()
     {
+        StartCoroutine(RedLightsButtons());
+        nextRootBase.SetActive(false);
         rootQuantity--;
-        Destroy(currentRoot);
+        Destroy(currentRoot, 2f);
+        if (rootQuantity == 0) return;
         RC.NewRoot();
-        GenerateRoot();
+        StartCoroutine(GenerateRoot());
     }
 
     public void CookingProcces()
     {
-        cookingButtom.SetActive(false);
+        acceptButtom.SetActive(false);
+        declineButtom.SetActive(false);
+        StartCoroutine(AnimationsButtoms((anin_cooking)));
         rootQuantity -= 1;
         minSelecteds = Mathf.Abs(rootSelecteds / 2);
         GM.CookingTime();
-        StartCoroutine(Cooking());
+        Cooking();
+        cookingButtom.SetActive(false);
 
     }
 
     public void ConfirmProcces()
     {
+        StartCoroutine(AnimationsButtoms(anin_confirm));
         StartCoroutine(CookingAnimations());
     }
 
     public void ResultProcces()
     {
+        StartCoroutine(AnimationsButtoms(anin_shop));
         GM.ResultTime();
         shopButtom.SetActive(false);
         StartCoroutine(ResultAnimations());
@@ -127,13 +189,10 @@ public class PlayerController : MonoBehaviour
     
     public void NextDayProcces()
     {
-        foreach (var result in results)
-        {
-            result.SetActive(false);
-        }
-
-        resultText.text = " ";
+        StartCoroutine(AnimationsButtoms((anin_next)));
+        anin_resultText.SetBool("Show", false);
         
+        Destroy(advice, 2f);
         Destroy(currentRoot);
         nextDayButtom.SetActive(false);
         GM.NewDay();
@@ -142,7 +201,8 @@ public class PlayerController : MonoBehaviour
     public void EliminatedRoots(int quantity, string typeRoot)
     {
         rootsEliminated += quantity;
-
+        Cooking();
+     
         if (typeRoot == "Healthy" && quantity > 0)
         {
             greenPoints -= 1;
@@ -161,10 +221,8 @@ public class PlayerController : MonoBehaviour
         }
     }
     
-    private IEnumerator Cooking()
+    private void Cooking()
     {
-        yield return new WaitForSeconds(2f);
-        
         if (rootsEliminated < minSelecteds)
         {
             confirmButtom.SetActive(true);
@@ -179,9 +237,12 @@ public class PlayerController : MonoBehaviour
     private IEnumerator CookingAnimations()
     {
         releaseRoots.SetActive(false);
-        destroyRoots.SetActive(true);
         confirmButtom.SetActive(false);
         yield return new WaitForSeconds(2f);
+
+        destroyRoots.SetActive(true);
+        yield return new WaitForSeconds(0.5f);
+
         shopButtom.SetActive(true);
         releaseRoots.SetActive(true);
         destroyRoots.SetActive(false);
@@ -189,37 +250,55 @@ public class PlayerController : MonoBehaviour
 
     private void Result()
     {
+        if (porcent > 100)
+        {
+            advice = Instantiate(results[0], resultPos.position, Quaternion.identity);
+            GM.GameLifes(3);
+        }
         if (porcent > 90)
         {
-            results[0].SetActive(true);
+            advice = Instantiate(results[1], resultPos.position, Quaternion.identity);
         }
         if (porcent > 70 &&  porcent <= 90)
         {
-            results[1].SetActive(true);
+            advice = Instantiate(results[2], resultPos.position, Quaternion.identity);
             GM.GameLifes(1);
         }
         if (porcent > 40 &&  porcent <= 70)
         {
-            results[2].SetActive(true);
+            advice = Instantiate(results[3], resultPos.position, Quaternion.identity);
             GM.GameLifes(2);
         }
         if (porcent > 0 &&  porcent <= 40)
         {
-            results[3].SetActive(true);
+            advice = Instantiate(results[4], resultPos.position, Quaternion.identity);
             GM.GameLifes(4);
+        }
+
+        if (porcent == 0)
+        {
+            advice = Instantiate(results[5], resultPos.position, Quaternion.identity);
+            GM.GameLifes(5);
         }
         
     }
 
     private IEnumerator ResultAnimations()
     {
-        porcent = (greenPoints / (greenPoints + redPoints)) * 100f;
-        var value = 0;
-        while (value <= porcent)
+        anin_resultText.SetBool("Show", true);
+
+        if (greenPoints == 0 && redPoints == 0)
         {
-            value++;
-            resultText.text = value + "%";
+            resultText.text = "No soup Today";
+            porcent = 101;
+            Result();
+            yield return new WaitForSeconds(3f);
+            nextDayButtom.SetActive(true);
         }
+        
+        porcent = (greenPoints / (greenPoints + redPoints)) * 100f;
+        resultText.text = Mathf.Floor(porcent) + "%";
+        
         
         Result();
         yield return new WaitForSeconds(3f);
