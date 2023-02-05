@@ -37,6 +37,7 @@ public class Compendium : MonoBehaviour
     public void OpenCompendium()
     {
         exitCompendium.SetActive(true);
+        openCompendium.SetActive(false);
         NextPageGreen();
     }
 

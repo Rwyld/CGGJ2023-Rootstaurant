@@ -15,6 +15,8 @@ public class GameManager : MonoBehaviour
     public Animator fade;
     public GameObject tutorialbt1, tutorialbt2, tutorialbt3;
     public GameObject releaseContainer, spliter;
+    public GameObject tutorials;
+    
 
     public int currentLifes;
     private bool EndGame = false;
@@ -106,6 +108,7 @@ public class GameManager : MonoBehaviour
     public void TutorialButtom3()
     {
         tutorialbt3.SetActive(false);
+        Destroy(tutorials, 1.5f);
         NewDay();
     }
 
