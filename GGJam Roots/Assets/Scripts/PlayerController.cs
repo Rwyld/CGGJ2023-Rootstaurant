@@ -14,7 +14,7 @@ public class PlayerController : MonoBehaviour
     public float redPoints;
     
     public Transform newRootPos, stackPos, resultPos;
-    public GameObject backTomorrow, nextRootBase, releaseRoots, destroyRoots;
+    public GameObject backTomorrow, nextRootBase, releaseRoots, destroyRoots, cuttingTable;
     public GameObject acceptButtom, declineButtom, confirmButtom, cookingButtom, shopButtom, nextDayButtom;
     public Button acceptBt, declineBt, confirmBt;
     public Animator anin_accept, anin_decline, anin_confirm, anin_cooking, anin_shop, anin_next;
@@ -168,8 +168,8 @@ public class PlayerController : MonoBehaviour
         rootQuantity -= 1;
         minSelecteds = Mathf.Abs(rootSelecteds / 2);
         GM.CookingTime();
-        Cooking();
         cookingButtom.SetActive(false);
+        confirmButtom.SetActive(true);
 
     }
 
@@ -236,8 +236,12 @@ public class PlayerController : MonoBehaviour
 
     private IEnumerator CookingAnimations()
     {
+        cuttingTable.transform.rotation = Quaternion.Euler(0f, 0f, 0f);
         releaseRoots.SetActive(false);
+        yield return new WaitForSeconds(1f);
+        
         confirmButtom.SetActive(false);
+        cuttingTable.transform.rotation = Quaternion.Euler(-45f, 0f, 0f);
         yield return new WaitForSeconds(2f);
 
         destroyRoots.SetActive(true);
@@ -246,6 +250,8 @@ public class PlayerController : MonoBehaviour
         shopButtom.SetActive(true);
         releaseRoots.SetActive(true);
         destroyRoots.SetActive(false);
+        
+
     }
 
     private void Result()
@@ -289,11 +295,12 @@ public class PlayerController : MonoBehaviour
 
         if (greenPoints == 0 && redPoints == 0)
         {
-            resultText.text = "No soup Today";
+            resultText.text = "No soup today";
             porcent = 101;
             Result();
             yield return new WaitForSeconds(3f);
             nextDayButtom.SetActive(true);
+            yield break;
         }
         
         porcent = (greenPoints / (greenPoints + redPoints)) * 100f;
